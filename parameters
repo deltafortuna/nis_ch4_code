@@ -1,0 +1,10 @@
+popsize  1000
+mutrate  1e-08
+seqlength 2.5e05
+sampsize  100
+sampfreq 100
+demography 0 1 4
+dem_parameter 0 -9900 0.02
+dem_start_gen 0  1001  1501
+dem_end_gen 1000  1500   20000
+carrying_cap 0 0 10000
