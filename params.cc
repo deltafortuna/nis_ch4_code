@@ -1,9 +1,28 @@
 #include "params.h"  // access to declarations of global parameter values
 
-vector<int> get_multi_int_param(const string &parameters_fn, const string &key)
+map<string, string> read_parameters_file(const string &parameters_fn)
+{
+	//map<int, map<string, string> > params_by_block;
+	map<string,string> params;
+	ifstream paramfile(parameters_fn.c_str());
+	string line;
+	while(getline(paramfile, line)) {
+		istringstream iss(line.c_str());
+		string key, nextone, value;
+		iss >> key;
+		while (iss >> nextone)
+			value += nextone + " ";
+		params[key] = value;
+	}
+	return params;
+}
+
+map<string, string> parameters = read_parameters_file("parameters"); // change name if parameters file not named parameters
+
+vector<int> get_multi_int_param(const string &key)    /// USE TEMPLATE SO ONLY ONE OF THESE FUNCTIONS IS NEEDED
 {
 	vector<int> vec;
-	istringstream iss(key);
+	istringstream iss(parameters[key].c_str());
 	string param;
 	while(getline(iss, param, ' '))
 		vec.push_back(atoi(param.c_str()));
@@ -13,7 +32,7 @@ vector<int> get_multi_int_param(const string &parameters_fn, const string &key)
 vector<double> get_multi_double_param(const string &key)
 {
 	vector<double> vec;
-	istringstream iss(key.c_str());
+	istringstream iss(parameters[key].c_str());
 	string param;
 	while(getline(iss, param, ' '))
 		vec.push_back(atof(param.c_str()));

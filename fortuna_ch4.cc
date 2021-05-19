@@ -6,6 +6,7 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <sstream> // added chapter 4
 #include <vector>
 #include <map>
 
@@ -23,6 +24,9 @@ int main(int argc, char *argv[]) {
 	mt19937 engine(time(0));  //initialize the random engine
 	Population::e  = engine;
 	Population pop;
+
+cout << popsize << " is popsize" << endl;
+cout << dem_parameter[1] << endl;
 
 	// simulate for gens generations
 	for (int i =0; i < gens; i++)
