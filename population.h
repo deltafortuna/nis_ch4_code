@@ -17,6 +17,7 @@ poisson_distribution<int> randommut;
 ofstream pi_file;
 ofstream watterson_file;
 ofstream allele_file;
+ofstream sumstat_file; // all sumstats printed here
 
 vector<vector<int> > mutate(const vector<int> &parents, const int &gen) {
 	vector<vector<int> > mutation_results;
@@ -80,7 +81,7 @@ void update_alleles(const int &gen) {
 			int birthgen = (*(iter->second)).get_birthgen();
 			allele_file << iter->first << " " << birthgen << " " << gen - birthgen << " 0" << endl;
 		}
-		if (current_count == popsize*2) {  // derived allele FIXED in population
+		if (current_count == pop_schedule[gen]*2) {  //replaces popsize*2 in ch_3 lisint
 			to_remove.push_back(iter->first);
 			int birthgen = (*(iter->second)).get_birthgen();
 			for (auto iter2 = individuals.begin(); iter2 != individuals.end(); ++iter2)
@@ -117,14 +118,20 @@ void get_sample(int gen) {
 		sample.push_back(bitset<bitlength> (hap));
 	}
 	int S = allele_counts.size();
-    pi_file << gen << " " << get_pi(sample) << endl;
-    watterson_file << gen << " " << get_watterson(sample, S) << endl;
+  pi_file << gen << " " << get_pi(sample) << endl;
+  watterson_file << gen << " " << get_watterson(sample, S) << endl;
+
+	double pi = get_pi(sample);
+	double watterson = get_watterson(sample, S);
+	double tajimasd = get_tajimas_d(pi, watterson, S);
+	sumstat_file << gen << " " << pi << " " << watterson << " " << tajimasd << endl;
 }
 
 public:
 void reproduce(int gen) {
 
-	for (int i=0; i< popsize; ++i) {
+	randomind.param(uniform_int_distribution<int>::param_type(0,pop_schedule[gen]-1));
+	for (int i=0; i< pop_schedule[gen==0 ? gen : gen-1]; ++i) { // replaces ch3 line
 		vector<int> parents;
 		parents.push_back(randomind(e));
 		parents.push_back(randomind(e));
@@ -134,10 +141,10 @@ void reproduce(int gen) {
 	}
 
 	// delete dynamically allocated individuasl of the last generation
-	for (auto iter = individuals.begin(); iter != individuals.end() - popsize; ++iter)
+	for (auto iter = individuals.begin(); iter != individuals.end() - pop_schedule[gen==0 ? gen : gen-1]; ++iter) // replaces ch3 line
 		delete *iter;
 	// remove orphaned pointers from individuals
-	individuals.erase(individuals.begin(), individuals.end()-popsize);
+	individuals.erase(individuals.begin(), individuals.end()- pop_schedule[gen==0 ? gen : gen-1]); // replaces ch3 line
 
 	// update allele counts on sample generations
 	if (gen % sampfreq == 0 )
@@ -153,18 +160,19 @@ void close_output_files () {
 	watterson_file.close();
 	pi_file.close();
 	allele_file.close();
+	sumstat_file.close();
 }
 
 Population () {
 	// initialize random number distributions
 	mu_sequence = seqlength * mutrate;
 	randompos.param(uniform_int_distribution<int>::param_type(1,seqlength));
-	randomind.param(uniform_int_distribution<int>::param_type(0,popsize-1));
+	randomind.param(uniform_int_distribution<int>::param_type(0,pop_schedule[0] - 1)); // replaces ch3 line
 	randomnum.param(uniform_real_distribution<double>::param_type(0.,1.));
  	randommut.param(poisson_distribution<int>::param_type(mu_sequence));
 
 	individuals.reserve(popsize*2);
-	for (int i=0; i<popsize; ++i) {
+	for (int i=0; i<pop_schedule[0]; ++i) { // replaces ch3 line
 		vector<int> s1; vector<int> s2;
 		vector<vector<int>> ses{s1,s2};
 		individuals.push_back(  new Individual(ses)  );
@@ -181,6 +189,10 @@ Population () {
 	fname = "allele_info";
 	allele_file.open(fname.c_str());
 	allele_file << "position birthgen lifespan extinct.fixed" << endl;
+
+	fname = "sumstats";
+	sumstat_file.open(fname.c_str());
+	sumstat_file << "gen pi watterson tajimasd" << endl;
 }
 
 static mt19937 e;

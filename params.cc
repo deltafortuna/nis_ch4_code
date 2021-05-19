@@ -1,9 +1,9 @@
 #include "params.h"  // access to declarations of global parameter values
 
-vector<int> get_multi_int_param(const string &key)
+vector<int> get_multi_int_param(const string &parameters_fn, const string &key)
 {
 	vector<int> vec;
-	istringstream iss(parameters[key].c_str());
+	istringstream iss(key);
 	string param;
 	while(getline(iss, param, ' '))
 		vec.push_back(atoi(param.c_str()));
@@ -13,7 +13,7 @@ vector<int> get_multi_int_param(const string &key)
 vector<double> get_multi_double_param(const string &key)
 {
 	vector<double> vec;
-	istringstream iss(parameters[key].c_str());
+	istringstream iss(key.c_str());
 	string param;
 	while(getline(iss, param, ' '))
 		vec.push_back(atof(param.c_str()));
