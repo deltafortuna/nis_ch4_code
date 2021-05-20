@@ -10,6 +10,8 @@ extern double mutrate;
 extern int seqlength;
 extern int sampsize;
 extern int sampfreq;
+extern bool useMS;
+extern string mscommand;
 extern vector<int> demography;
 extern vector<double> dem_parameter;
 extern vector<int> dem_start_gen;

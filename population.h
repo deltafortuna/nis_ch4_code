@@ -172,10 +172,50 @@ Population () {
  	randommut.param(poisson_distribution<int>::param_type(mu_sequence));
 
 	individuals.reserve(popsize*2);
-	for (int i=0; i<pop_schedule[0]; ++i) { // replaces ch3 line
-		vector<int> s1; vector<int> s2;
-		vector<vector<int>> ses{s1,s2};
-		individuals.push_back(  new Individual(ses)  );
+
+	if (useMS) { // start population with MS generated variation
+		cout << "using MS to initialize population ..." << endl;
+		system(mscommand.c_str());
+		ifstream ms_output("ms_output");
+		string ms_line;
+		regex query("positions");
+		bool trigger = false;
+		vector<int> allele_positions;
+		while(getline(ms_output, ms_line)) {
+			if (regex_search(ms_line, query)) {
+				trigger = true;
+				istringstream iss(ms_line);
+				string s;
+				iss >> s; //skip the first subpart, which is "positions:"
+				while (iss >> s) { // read decimal positions,
+	                                   // convert to base pair position,
+									// and create new allele at that position
+					int position = seqlength * atof(s.c_str());
+					allele_positions.push_back(position);
+					alleles.insert( { position  , new Allele(position,-1) } );
+				}
+				continue;
+			}
+
+			if (trigger) { // allele positions determined;
+				vector<int> s1, s2;
+				for (int i=0; i < ms_line.length(); ++i)
+					if (ms_line[i] == '1')
+						s1.push_back(allele_positions[i]);
+				getline(ms_output, ms_line);
+				for (int i=0; i < ms_line.length(); ++i)
+					if (ms_line[i] == '1')
+						s2.push_back(allele_positions[i]);
+				vector<vector<int>> ses{s1,s2};
+				individuals.push_back( new Individual(ses) );
+			}
+		}
+	} else {
+		for (int i=0; i<pop_schedule[0]; ++i) { // replaces ch3 line
+			vector<int> s1; vector<int> s2;
+			vector<vector<int>> ses{s1,s2};
+			individuals.push_back(  new Individual(ses)  );
+		}
 	}
 
 	string fname = "nucleotide_diversity";

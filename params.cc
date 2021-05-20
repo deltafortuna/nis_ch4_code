@@ -19,7 +19,7 @@ map<string, string> read_parameters_file(const string &parameters_fn)
 
 map<string, string> parameters = read_parameters_file("parameters"); // change name if parameters file not named parameters
 
-vector<int> get_multi_int_param(const string &key)    /// USE TEMPLATE SO ONLY ONE OF THESE FUNCTIONS IS NEEDED
+vector<int> get_multi_int_param(const string &key)
 {
 	vector<int> vec;
 	istringstream iss(parameters[key].c_str());
@@ -46,7 +46,9 @@ vector<int> create_pop_schedule()
 	int cursize = popsize;
 	for (int step = 0; step < demography.size(); ++step) {
 		for (; i<dem_start_gen[step]; ++i)
+		{
 			ps.push_back(cursize);
+		}
 		for (; i <= dem_end_gen[step]; ++i) {
 			switch(demography[step]) {
 				case 0: ps.push_back(cursize);  // no size change
@@ -70,62 +72,33 @@ vector<int> create_pop_schedule()
 	return ps;
 }
 
-// returns value of type int for requested parameter key
-int getParameter_int(const string &parameters_fn, const string &key)
-{
-	string item;
-	ifstream paramfile;
-	int to_return;
-	paramfile.open(parameters_fn.c_str());
+// variable names
+int popsize, sampsize, seqlength, sampfreq;
+double mutrate;
+bool useMS;
+string mscommand;
+vector<int> demography;
+vector<double> dem_parameter;
+vector<int> dem_start_gen;
+vector<int> dem_end_gen;
+vector<int> carrying_cap;
 
-	while (paramfile >> item)
-	{
-	    if (item == key) {
-	    	paramfile >> item;
-	    	paramfile.close();
-				to_return = atoi(item.c_str());
-	 //   	return(atoi(item.c_str()));
-	    } else
-	    	paramfile >> item; // read value, which is ignored
-	}
-	paramfile.close();
-	return(to_return);
+int process_parameters() {
+	popsize = atoi(parameters["popsize"].c_str());
+  mutrate = atof(parameters["mutrate"].c_str());
+	sampsize = atoi(parameters["sampsize"].c_str());
+	seqlength = atof(parameters["seqlength"].c_str()); // covernsion using atof() enables use of e notation in parameters file
+	sampfreq = atoi(parameters["sampfreq"].c_str());
+  useMS = atoi(parameters["useMS"].c_str());
+  mscommand = parameters["mscommand"];
+	demography = get_multi_int_param("demography");
+	dem_parameter = get_multi_double_param("dem_parameter");
+	dem_start_gen = get_multi_int_param("dem_start_gen");
+	dem_end_gen = get_multi_int_param("dem_end_gen");
+	carrying_cap = get_multi_int_param("carrying_cap");
+	return 1;
 }
 
-// returns value of type double for requested parameter key
-double getParameter_double(const string &parameters_fn, const string &key)
-{
-	string item;
-	ifstream paramfile;
-	double to_return;
-	paramfile.open(parameters_fn.c_str());
-	// Read in a line
-	while (paramfile >> item)
-	{
-	    if (item == key) {
-	    	paramfile >> item;
-	    	paramfile.close();
-				to_return = atof(item.c_str());
-	    	//return (atof(item.c_str()));
-	    } else
-	    	paramfile >> item; // read value, which is ignored
-	}
-	paramfile.close();
-	return(to_return);
-}
-
-string parameters_fn("parameters"); // the name of parameters file
-
-// read in the parameter values from the parameters file
-int popsize = getParameter_int (parameters_fn, "popsize");
-double mutrate = getParameter_double (parameters_fn, "mutrate");
-int sampsize = getParameter_int (parameters_fn, "sampsize");
-int seqlength = getParameter_double (parameters_fn, "seqlength");
-int sampfreq = getParameter_int (parameters_fn, "sampfreq");
-vector<int> demography =  get_multi_int_param("demography");
-vector<double> dem_parameter = get_multi_double_param("dem_parameter");
-vector<int> dem_start_gen =  get_multi_int_param("dem_start_gen");
-vector<int> dem_end_gen = get_multi_int_param("dem_end_gen");
-vector<int> carrying_cap = get_multi_int_param("carrying_cap");
+int good_parameters = process_parameters();
 
 vector<int> pop_schedule = create_pop_schedule();

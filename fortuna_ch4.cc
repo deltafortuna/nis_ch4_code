@@ -6,9 +6,10 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
-#include <sstream> // added chapter 4
 #include <vector>
 #include <map>
+#include <sstream>
+#include <regex>
 
 using namespace std;
 
@@ -29,8 +30,11 @@ cout << popsize << " is popsize" << endl;
 cout << dem_parameter[1] << endl;
 
 	// simulate for gens generations
-	for (int i =0; i < gens; i++)
+	for (int i =0; i < gens; i++) {
 		pop.reproduce(i);
+		if (i % 100 == 0)
+			cout << "gen " << i << endl;
+	}
 	pop.close_output_files();
 
 	return 0;
