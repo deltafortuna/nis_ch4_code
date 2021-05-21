@@ -6,7 +6,7 @@
 // declarations
 double get_pi (vector<bitset<bitlength>> &sample);
 double get_watterson (vector<bitset<bitlength>> &sample, int S);
-double get_tajimas_d(double pi, double watterson, int S); 
+double get_tajimas_d(double pi, double watterson, int S);
 
 // definitions
 double get_pi (vector<bitset<bitlength>> &sample) {
@@ -20,14 +20,14 @@ double get_pi (vector<bitset<bitlength>> &sample) {
 			numcomp+=1.;
 		}
 	}
-	return (sumdiffs/numcomp/seqlength);
+	return (sumdiffs/numcomp);
 }
 
 double get_watterson (vector<bitset<bitlength>> &sample, int S) {
 	double denominator = 0.;
 	for (double i=1.; i<sampsize; ++i)
 		denominator += 1./i;
-	return (S/denominator/seqlength);
+	return (S/denominator);
 }
 
 double get_tajimas_d (double pi, double watterson, int S) {
